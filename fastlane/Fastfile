@@ -229,10 +229,10 @@ platform :ios do
       targets: ["InnerOrbit"]
     )
 
-    increment_build_number(
-      build_number: new_build,
-      xcodeproj: "InnerOrbit.xcodeproj"
-    )
+   # increment_build_number(
+   #   build_number: new_build,
+   #   xcodeproj: "InnerOrbit.xcodeproj"
+   # )
 
     gym(
       scheme: "InnerOrbit",
