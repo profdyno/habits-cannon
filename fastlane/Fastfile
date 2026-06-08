@@ -215,12 +215,12 @@ platform :ios do
     profile_name = ENV["sigh_#{APP_IDENTIFIER}_appstore_profile-name"]
 
     update_project_team(
-      path: "InnerOrbit.xcodeproj",
+      path: "InnerOrbitv2.xcodeproj",
       teamid: "#{TEAMID}"
     )
 
     update_code_signing_settings(
-      path: "InnerOrbit.xcodeproj",
+      path: "InnerOrbitv2.xcodeproj",
       use_automatic_signing: false,
       team_id: "#{TEAMID}",
       bundle_identifier: APP_IDENTIFIER,
