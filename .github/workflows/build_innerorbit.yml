@@ -68,7 +68,7 @@ jobs:
     uses: ./.github/workflows/create_certs.yml
     secrets: inherit
 
-    build:
+  build:
     name: Build and Upload
     runs-on: macos-latest
     needs: [check-status, check-certs]
