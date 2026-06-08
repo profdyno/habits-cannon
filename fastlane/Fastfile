@@ -215,29 +215,29 @@ platform :ios do
     profile_name = ENV["sigh_#{APP_IDENTIFIER}_appstore_profile-name"]
 
     update_project_team(
-      path: "InnerOrbitv2.xcodeproj",
+      path: "InnerOrbit.xcodeproj",
       teamid: "#{TEAMID}"
     )
 
     update_code_signing_settings(
-      path: "InnerOrbitv2.xcodeproj",
+      path: "InnerOrbit.xcodeproj",
       use_automatic_signing: false,
       team_id: "#{TEAMID}",
       bundle_identifier: APP_IDENTIFIER,
       profile_name: profile_name,
       code_sign_identity: "iPhone Distribution",
-      targets: ["InnerOrbitv2"]
+      targets: ["InnerOrbit"]
     )
 
     increment_build_number(
       build_number: new_build,
-      xcodeproj: "InnerOrbitv2.xcodeproj"
+      xcodeproj: "InnerOrbit.xcodeproj"
     )
 
     gym(
-      scheme: "InnerOrbitv2",
+      scheme: "InnerOrbit",
       export_method: "app-store",
-      project: "InnerOrbitv2.xcodeproj",
+      project: "InnerOrbit.xcodeproj",
       output_name: "InnerOrbit.ipa",
       destination: "generic/platform=iOS",
       archive_path: "InnerOrbit.xcarchive",
