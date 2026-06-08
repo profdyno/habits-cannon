@@ -226,7 +226,7 @@ platform :ios do
       bundle_identifier: APP_IDENTIFIER,
       profile_name: profile_name,
       code_sign_identity: "iPhone Distribution",
-      targets: ["InnerOrbit"]
+      targets: ["InnerOrbitv2"]
     )
 
     increment_build_number(
