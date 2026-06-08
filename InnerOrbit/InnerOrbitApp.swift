@@ -515,6 +515,7 @@ struct TodayView: View {
     @State private var selectedPhotoItems: [PhotosPickerItem] = []
     @State private var affirmationText = ""
     @State private var currentAffirmationIndex = 0
+    @State private var affirmationSaveMessage: String?
 
     private let columns = [GridItem(.adaptive(minimum: 104), spacing: 12)]
 
@@ -702,6 +703,7 @@ struct TodayView: View {
                                 HStack(spacing: 10) {
                                     Button("Shuffle") {
                                         currentAffirmationIndex = Int.random(in: 0..<max(allAffirmations.count, 1))
+                                        affirmationSaveMessage = nil
                                         softHaptic()
                                     }
                                     .buttonStyle(SecondaryOrbitButtonStyle())
@@ -720,6 +722,10 @@ struct TodayView: View {
                                 }
                                 .buttonStyle(SecondaryOrbitButtonStyle())
                                 .disabled(affirmationText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+                                if let affirmationSaveMessage {
+                                    SaveStatusLabel(message: affirmationSaveMessage)
+                                }
                             }
                         }
 
@@ -832,21 +838,50 @@ struct TodayView: View {
 
     private func saveCurrentAffirmation() {
         let text = displayedAffirmation.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { return }
-        guard !affirmations.contains(where: { $0.text.caseInsensitiveCompare(text) == .orderedSame }) else { return }
+        guard !text.isEmpty else {
+            affirmationSaveMessage = "Could not save affirmation"
+            return
+        }
+        guard !affirmations.contains(where: { $0.text.caseInsensitiveCompare(text) == .orderedSame }) else {
+            affirmationSaveMessage = "Affirmation already saved"
+            return
+        }
+
         modelContext.insert(AffirmationEntry(text: text, isFavorite: true))
-        try? modelContext.save()
-        softHaptic()
+
+        do {
+            try modelContext.save()
+            affirmationSaveMessage = "Affirmation saved"
+            softHaptic()
+        } catch {
+            affirmationSaveMessage = "Could not save affirmation"
+            print("Could not save affirmation: \(error)")
+        }
     }
 
     private func addCustomAffirmation() {
         let text = affirmationText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { return }
+        guard !text.isEmpty else {
+            affirmationSaveMessage = "Could not save affirmation"
+            return
+        }
+        guard !affirmations.contains(where: { $0.text.caseInsensitiveCompare(text) == .orderedSame }) else {
+            affirmationSaveMessage = "Affirmation already saved"
+            return
+        }
+
         modelContext.insert(AffirmationEntry(text: text, isFavorite: true))
-        try? modelContext.save()
-        affirmationText = ""
-        currentAffirmationIndex = 0
-        softHaptic()
+
+        do {
+            try modelContext.save()
+            affirmationText = ""
+            currentAffirmationIndex = 0
+            affirmationSaveMessage = "Custom affirmation saved"
+            softHaptic()
+        } catch {
+            affirmationSaveMessage = "Could not save affirmation"
+            print("Could not save custom affirmation: \(error)")
+        }
     }
 
     private func importSelectedPhotos() async {
@@ -1844,10 +1879,20 @@ struct SaveStatusLabel: View {
     let message: String
 
     var body: some View {
-        Label(message, systemImage: message.hasPrefix("Could not") ? "exclamationmark.circle.fill" : "checkmark.circle.fill")
+        Label(message, systemImage: systemImage)
             .font(.subheadline.weight(.semibold))
             .foregroundStyle(message.hasPrefix("Could not") ? Color.red : OrbitTheme.accent3)
             .transition(.opacity)
+    }
+
+    private var systemImage: String {
+        if message.hasPrefix("Could not") {
+            return "exclamationmark.circle.fill"
+        }
+        if message.contains("already") {
+            return "info.circle.fill"
+        }
+        return "checkmark.circle.fill"
     }
 }
 
@@ -2249,3 +2294,4 @@ struct SecondaryOrbitButtonStyle: ButtonStyle {
             .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }
+
