@@ -235,9 +235,9 @@ platform :ios do
     )
 
     gym(
-      scheme: "InnerOrbit",
+      scheme: "InnerOrbitv2",
       export_method: "app-store",
-      project: "InnerOrbit.xcodeproj",
+      project: "InnerOrbitv2.xcodeproj",
       output_name: "InnerOrbit.ipa",
       destination: "generic/platform=iOS",
       archive_path: "InnerOrbit.xcarchive",
