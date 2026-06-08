@@ -510,6 +510,8 @@ struct TodayView: View {
     @State private var selectedMood: MoodType = .good
     @State private var moodNote = ""
     @State private var wakeTime = Date.now
+    @State private var moodSaveMessage: String?
+    @State private var wakeSaveMessage: String?
     @State private var selectedPhotoItems: [PhotosPickerItem] = []
     @State private var affirmationText = ""
     @State private var currentAffirmationIndex = 0
@@ -583,6 +585,10 @@ struct TodayView: View {
                                     saveWakeTime()
                                 }
                                 .buttonStyle(PrimaryOrbitButtonStyle())
+
+                                if let wakeSaveMessage {
+                                    SaveStatusLabel(message: wakeSaveMessage)
+                                }
                             }
                         }
 
@@ -606,6 +612,10 @@ struct TodayView: View {
                                     saveMood()
                                 }
                                 .buttonStyle(PrimaryOrbitButtonStyle())
+
+                                if let moodSaveMessage {
+                                    SaveStatusLabel(message: moodSaveMessage)
+                                }
                             }
                         }
 
@@ -792,8 +802,15 @@ struct TodayView: View {
         } else {
             modelContext.insert(MoodEntry(date: .now, mood: selectedMood, note: moodNote))
         }
-        try? modelContext.save()
-        softHaptic()
+
+        do {
+            try modelContext.save()
+            moodSaveMessage = "\(selectedMood.rawValue) mood saved"
+            softHaptic()
+        } catch {
+            moodSaveMessage = "Could not save mood"
+            print("Could not save mood: \(error)")
+        }
     }
 
     private func saveWakeTime() {
@@ -802,8 +819,15 @@ struct TodayView: View {
         } else {
             modelContext.insert(WakeEntry(date: .now, wakeTime: wakeTime))
         }
-        try? modelContext.save()
-        softHaptic()
+
+        do {
+            try modelContext.save()
+            wakeSaveMessage = "Wake time saved at \(wakeTime.formatted(date: .omitted, time: .shortened))"
+            softHaptic()
+        } catch {
+            wakeSaveMessage = "Could not save wake time"
+            print("Could not save wake time: \(error)")
+        }
     }
 
     private func saveCurrentAffirmation() {
@@ -1813,6 +1837,17 @@ struct TagChip: View {
             .background(Color.white.opacity(0.08))
             .foregroundStyle(OrbitTheme.accent3)
             .clipShape(Capsule())
+    }
+}
+
+struct SaveStatusLabel: View {
+    let message: String
+
+    var body: some View {
+        Label(message, systemImage: message.hasPrefix("Could not") ? "exclamationmark.circle.fill" : "checkmark.circle.fill")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(message.hasPrefix("Could not") ? Color.red : OrbitTheme.accent3)
+            .transition(.opacity)
     }
 }
 
